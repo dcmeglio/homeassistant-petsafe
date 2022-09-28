@@ -11,11 +11,15 @@
         "step": {
             "user": {
                 "data": {
-                    "host": "Host",
-                    "password": "Password",
-                    "username": "Username"
+                    "email": "Email Address"
                 }
-            }
+            },
+            "code": {
+                "description": "Check your email for the confirmation code",
+                "data": {
+                  "code": "Confirmation Code"
+                }
+              }
         }
     }
 }

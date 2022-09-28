@@ -1,9 +1,10 @@
 {
+  "version": "0.0.1",
   "domain": "petsafe",
   "name": "PetSafe Integration",
   "config_flow": true,
   "documentation": "https://www.home-assistant.io/integrations/petsafe",
-  "requirements": [],
+  "requirements": ["petsafe==1.0"],
   "ssdp": [],
   "zeroconf": [],
   "homekit": {},
