@@ -2,11 +2,13 @@
 from __future__ import annotations
 
 import async_timeout
+import boto3
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.const import CONF_ACCESS_TOKEN, CONF_CODE, CONF_EMAIL, CONF_TOKEN
+from homeassistant.exceptions import ConfigEntryAuthFailed
 
 from .const import CONF_REFRESH_TOKEN, DOMAIN
 
@@ -49,15 +51,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
-    # Fetch initial data so we have data when entities subscribe
-    #
-    # If the refresh fails, async_config_entry_first_refresh will
-    # raise ConfigEntryNotReady and setup will try again later
-    #
-    # If you do not want to retry setup on failure, use
-    # coordinator.async_refresh() instead
-    #
-
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     await coordinator.async_config_entry_first_refresh()
 
@@ -95,26 +88,21 @@ class PetSafeCoordinator(DataUpdateCoordinator):
         self.hass: HomeAssistant = hass
 
     async def _async_update_data(self):
-        """Fetch data from API endpoint.
+        """Fetch data from API endpoint."""
+        cognito_idp = await self.hass.async_add_executor_job(
+            boto3.client, "cognito-idp", "us-east-1"
+        )
 
-        This is the place to pre-process the data to lookup tables
-        so entities can quickly look up their data.
-        """
-        #     try:
-        # Note: asyncio.TimeoutError and aiohttp.ClientError are already
-        # handled by the data update coordinator.
-        async with async_timeout.timeout(10):
-            feeders = await self.hass.async_add_executor_job(
-                petsafe.devices.get_feeders, self.api
-            )
-            scoopers = await self.hass.async_add_executor_job(
-                petsafe.devices.get_litterboxes, self.api
-            )
-            return PetSafeData(feeders, scoopers)
-
-    #  except ApiAuthError as err:
-    # Raising ConfigEntryAuthFailed will cancel future updates
-    # and start a config flow with SOURCE_REAUTH (async_step_reauth)
-    #    raise ConfigEntryAuthFailed from err
-    # except ApiError as err:
-    #     raise UpdateFailed(f"Error communicating with API: {err}")
+        try:
+            # Note: asyncio.TimeoutError and aiohttp.ClientError are already
+            # handled by the data update coordinator.
+            async with async_timeout.timeout(10):
+                feeders = await self.hass.async_add_executor_job(
+                    petsafe.devices.get_feeders, self.api
+                )
+                scoopers = await self.hass.async_add_executor_job(
+                    petsafe.devices.get_litterboxes, self.api
+                )
+                return PetSafeData(feeders, scoopers)
+        except cognito_idp.exceptions.NotAuthorizedException:
+            raise ConfigEntryAuthFailed()
