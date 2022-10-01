@@ -1,12 +1,13 @@
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from homeassistant.components.binary_sensor import BinarySensorEntity
+from homeassistant.components.switch import SwitchEntity
 from homeassistant.helpers.entity import DeviceInfo
 import petsafe
 from .const import DOMAIN, MANUFACTURER
 from . import PetSafeData
+from typing import Any
 
 
-class PetSafeBinarySensorEntity(CoordinatorEntity, BinarySensorEntity):
+class PetSafeSwitchEntity(CoordinatorEntity, SwitchEntity):
     def __init__(
         self,
         hass,
@@ -16,6 +17,7 @@ class PetSafeBinarySensorEntity(CoordinatorEntity, BinarySensorEntity):
         device_type,
         icon=None,
         device_class=None,
+        entity_category=None,
     ):
         super().__init__(coordinator)
         self._attr_name = name
@@ -27,9 +29,10 @@ class PetSafeBinarySensorEntity(CoordinatorEntity, BinarySensorEntity):
         self._attr_unique_id = api_name + "_" + device_type
         self._attr_icon = icon
         self._device_type = device_type
+        self._attr_entity_category = entity_category
 
 
-class PetSafeLitterboxBinarySensorEntity(PetSafeBinarySensorEntity):
+class PetSafeLitterboxSwitchEntity(PetSafeSwitchEntity):
     def __init__(
         self,
         hass,
@@ -39,6 +42,7 @@ class PetSafeLitterboxBinarySensorEntity(PetSafeBinarySensorEntity):
         device: petsafe.devices.DeviceScoopfree,
         icon=None,
         device_class=None,
+        entity_category=None,
     ):
         self._litterbox = device
 
@@ -50,6 +54,7 @@ class PetSafeLitterboxBinarySensorEntity(PetSafeBinarySensorEntity):
             device_type,
             icon,
             device_class,
+            entity_category,
         )
 
         self._attr_device_info = DeviceInfo(
@@ -70,7 +75,7 @@ class PetSafeLitterboxBinarySensorEntity(PetSafeBinarySensorEntity):
         return super()._handle_coordinator_update()
 
 
-class PetSafeFeederBinarySensorEntity(PetSafeBinarySensorEntity):
+class PetSafeFeederSwitchEntity(PetSafeSwitchEntity):
     def __init__(
         self,
         hass,
@@ -80,6 +85,7 @@ class PetSafeFeederBinarySensorEntity(PetSafeBinarySensorEntity):
         device: petsafe.devices.DeviceSmartFeed,
         icon=None,
         device_class=None,
+        entity_category=None,
     ):
         self._feeder = device
 
@@ -91,6 +97,7 @@ class PetSafeFeederBinarySensorEntity(PetSafeBinarySensorEntity):
             device_type,
             icon,
             device_class,
+            entity_category,
         )
 
         self._attr_device_info = DeviceInfo(
@@ -100,6 +107,7 @@ class PetSafeFeederBinarySensorEntity(PetSafeBinarySensorEntity):
             sw_version=device.data["firmware_version"],
             model=device.data["product_name"],
         )
+        self._device = device
 
     def _handle_coordinator_update(self) -> None:
         data: PetSafeData = self.coordinator.data
@@ -124,3 +132,15 @@ class PetSafeFeederBinarySensorEntity(PetSafeBinarySensorEntity):
             feeding = await self.hass.async_add_executor_job(feeder.get_last_feeding)
 
         return await super().async_update()
+
+    def turn_on(self, **kwargs: Any) -> None:
+        if self._device_type == "child_lock":
+            self._device.child_lock = True
+        elif self._device_type == "feeding_paused":
+            self._device.paused = True
+
+    def turn_off(self, **kwargs: Any) -> None:
+        if self._device_type == "child_lock":
+            self._device.child_lock = False
+        elif self._device_type == "feeding_paused":
+            self._device.paused = False

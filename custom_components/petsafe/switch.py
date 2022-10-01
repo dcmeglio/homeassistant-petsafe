@@ -1,8 +1,9 @@
 from . import PetSafeCoordinator
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import EntityCategory
 import petsafe
 from .const import DOMAIN
-from . import BinarySensorEntities
+from . import SwitchEntities
 
 
 async def async_setup_entry(hass: HomeAssistant, config, add_entities):
@@ -14,23 +15,25 @@ async def async_setup_entry(hass: HomeAssistant, config, add_entities):
     entities = []
     for feeder in feeders:
         entities.append(
-            BinarySensorEntities.PetSafeFeederBinarySensorEntity(
+            SwitchEntities.PetSafeFeederSwitchEntity(
                 hass=hass,
                 name="Feeding Paused",
                 device_type="feeding_paused",
                 icon="mdi:pause",
                 device=feeder,
                 coordinator=coordinator,
+                entity_category=EntityCategory.CONFIG,
             )
         )
         entities.append(
-            BinarySensorEntities.PetSafeFeederBinarySensorEntity(
+            SwitchEntities.PetSafeFeederSwitchEntity(
                 hass=hass,
                 name="Child Lock",
                 device_type="child_lock",
                 icon="mdi:lock-open",
                 device=feeder,
                 coordinator=coordinator,
+                entity_category=EntityCategory.CONFIG,
             )
         )
     add_entities(entities)

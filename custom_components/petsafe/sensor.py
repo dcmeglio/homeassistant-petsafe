@@ -4,7 +4,6 @@ from . import SensorEntities
 from .const import DOMAIN
 
 from . import PetSafeCoordinator
-from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 
 
