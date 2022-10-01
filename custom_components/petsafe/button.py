@@ -9,7 +9,7 @@ from . import ButtonEntities
 
 
 async def async_setup_entry(hass: HomeAssistant, config, add_entities):
-    coordinator: PetSafeCoordinator = hass.data[DOMAIN]
+    coordinator: PetSafeCoordinator = hass.data[DOMAIN][config.entry_id]
     api: petsafe.PetSafeClient = coordinator.api
 
     feeders = await hass.async_add_executor_job(petsafe.devices.get_feeders, api)

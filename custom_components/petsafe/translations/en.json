@@ -5,8 +5,9 @@
         },
         "error": {
             "cannot_connect": "Failed to connect",
-            "invalid_auth": "Invalid authentication",
-            "unknown": "Unexpected error"
+            "invalid_user": "Invalid email address",
+            "invalid_code": "Invalid confirmation code",
+            "unknown_error": "Unexpected error"
         },
         "step": {
             "user": {
