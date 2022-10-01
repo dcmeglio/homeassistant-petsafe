@@ -1,78 +1,37 @@
-"""Config flow for PetSafe Integration integration."""
+"""Config flow for PetSafe Integration."""
 from __future__ import annotations
 
 import logging
-from os import access
 from typing import Any
 
 import voluptuous as vol
 
 from homeassistant import config_entries
-from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.const import CONF_CODE, CONF_EMAIL
+from homeassistant.const import CONF_ACCESS_TOKEN, CONF_CODE, CONF_EMAIL, CONF_TOKEN
 import homeassistant.helpers.config_validation as cv
 
 import petsafe
 
-from .const import DOMAIN
+from .const import DOMAIN, CONF_REFRESH_TOKEN
 
 _LOGGER = logging.getLogger(__name__)
 
-# TODO adjust the data schema to the data that you need
 STEP_USER_DATA_SCHEMA = vol.Schema({vol.Required(CONF_EMAIL): str})
 STEP_CODE_DATA_SCHEMA = vol.Schema({vol.Required(CONF_CODE): str})
-
-
-class PlaceholderHub:
-    """Placeholder class to make tests pass.
-
-    TODO Remove this placeholder class and replace with things from your PyPI package.
-    """
-
-    def __init__(self) -> None:
-        """Initialize."""
-
-    async def authenticate(self, username: str, password: str) -> bool:
-        """Test if we can authenticate with the host."""
-        return True
-
-
-async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
-    """Validate the user input allows us to connect.
-
-    Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
-    """
-    # TODO validate the data can be used to set up a connection.
-
-    # If your PyPI package is not built with async, pass your methods
-    # to the executor:
-    # await hass.async_add_executor_job(
-    #     your_validate_func, data["username"], data["password"]
-    # )
-
-    hub = PlaceholderHub()
-
-    if not await hub.authenticate(data["username"], data["password"]):
-        raise InvalidAuth
-
-    # If you cannot connect:
-    # throw CannotConnect
-    # If the authentication is wrong:
-    # InvalidAuth
-
-    # Return info that you want to store in the config entry.
-    return {"title": "Name of the device"}
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for PetSafe Integration."""
 
     def __init__(self):
-        self._token = ""
+
         self.data: dict = {}
         self._client = None
+        self._id_token = None
+        self._access_token = None
+        self._refresh_token = None
 
         self._feeders = None
         self._litterboxes = None
@@ -86,6 +45,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def get_devices(self, email, code):
         self._client.request_tokens_from_code(code)
+        self._id_token = self._client.id_token
+        self._access_token = self._client.access_token
+        self._refresh_token = self._client.refresh_token
 
         self._feeders = {
             x.api_name: x.friendly_name
@@ -127,19 +89,26 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return await self.async_step_devices()
 
     async def async_step_devices(self, user_input: dict[str, Any] | None = None):
-        return self.async_show_form(
-            step_id="devices",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(
-                        "feeders", default=list(self._feeders)
-                    ): cv.multi_select(self._feeders),
-                    vol.Required(
-                        "litterboxes", default=list(self._litterboxes)
-                    ): cv.multi_select(self._litterboxes),
-                }
-            ),
-        )
+        if user_input is None:
+            return self.async_show_form(
+                step_id="devices",
+                data_schema=vol.Schema(
+                    {
+                        vol.Required(
+                            "feeders", default=list(self._feeders)
+                        ): cv.multi_select(self._feeders),
+                        vol.Required(
+                            "litterboxes", default=list(self._litterboxes)
+                        ): cv.multi_select(self._litterboxes),
+                    }
+                ),
+            )
+        else:
+            self.data.update(user_input)
+            self.data[CONF_TOKEN] = self._id_token
+            self.data[CONF_ACCESS_TOKEN] = self._access_token
+            self.data[CONF_REFRESH_TOKEN] = self._refresh_token
+            return self.async_create_entry(title=self.data[CONF_EMAIL], data=self.data)
 
 
 class CannotConnect(HomeAssistantError):
