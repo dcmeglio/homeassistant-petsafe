@@ -2,10 +2,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.components.button import ButtonEntity
 from homeassistant.helpers.entity import DeviceInfo
 import petsafe
-import datetime
 from .const import DOMAIN, MANUFACTURER
-from . import PetSafeData
-import pytz
 from . import PetSafeCoordinator
 
 

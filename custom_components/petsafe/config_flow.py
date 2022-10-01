@@ -11,7 +11,6 @@ from botocore.exceptions import ParamValidationError
 
 from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResult
-from homeassistant.exceptions import HomeAssistantError
 from homeassistant.const import (
     CONF_ACCESS_TOKEN,
     CONF_BASE,
@@ -25,8 +24,6 @@ import petsafe
 
 
 from .const import DOMAIN, CONF_REFRESH_TOKEN
-
-_LOGGER = logging.getLogger(__name__)
 
 STEP_USER_DATA_SCHEMA = vol.Schema({vol.Required(CONF_EMAIL): str})
 STEP_CODE_DATA_SCHEMA = vol.Schema({vol.Required(CONF_CODE): str})

@@ -1,10 +1,7 @@
-from homeassistant.components.binary_sensor import BinarySensorEntity
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from . import PetSafeCoordinator, PetSafeData
+from . import PetSafeCoordinator
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
 import petsafe
-from .const import DOMAIN, MANUFACTURER
+from .const import DOMAIN
 from . import ButtonEntities
 
 
