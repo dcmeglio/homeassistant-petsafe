@@ -5,6 +5,7 @@ from .const import DOMAIN
 
 from . import PetSafeCoordinator
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import EntityCategory
 
 
 from datetime import timedelta
@@ -53,6 +54,17 @@ async def async_setup_entry(hass: HomeAssistant, config, add_entities):
                 icon="mdi:bowl",
             )
         )
+        entities.append(
+            SensorEntities.PetSafeFeederSensorEntity(
+                hass=hass,
+                name="Signal Strength",
+                device_type="signal_strength",
+                device=feeder,
+                coordinator=coordinator,
+                device_class="signal_strength",
+                entity_category=EntityCategory.DIAGNOSTIC,
+            )
+        )
     for litterbox in litterboxes:
         entities.append(
             SensorEntities.PetSafeLitterboxSensorEntity(
@@ -62,6 +74,17 @@ async def async_setup_entry(hass: HomeAssistant, config, add_entities):
                 device=litterbox,
                 coordinator=coordinator,
                 icon="mdi:rake",
+            )
+        )
+        entities.append(
+            SensorEntities.PetSafeLitterboxSensorEntity(
+                hass=hass,
+                name="Signal Strength",
+                device_type="signal_strength",
+                device=litterbox,
+                coordinator=coordinator,
+                device_class="signal_strength",
+                entity_category=EntityCategory.DIAGNOSTIC,
             )
         )
     add_entities(entities)

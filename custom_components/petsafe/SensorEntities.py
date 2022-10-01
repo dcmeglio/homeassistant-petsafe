@@ -18,6 +18,7 @@ class PetSafeSensorEntity(CoordinatorEntity, SensorEntity):
         device_type,
         icon=None,
         device_class=None,
+        entity_category=None,
     ):
         super().__init__(coordinator)
         self._attr_name = name
@@ -29,6 +30,7 @@ class PetSafeSensorEntity(CoordinatorEntity, SensorEntity):
         self._attr_unique_id = api_name + "_" + device_type
         self._attr_icon = icon
         self._device_type = device_type
+        self._attr_entity_category = entity_category
 
 
 class PetSafeLitterboxSensorEntity(PetSafeSensorEntity):
@@ -41,6 +43,7 @@ class PetSafeLitterboxSensorEntity(PetSafeSensorEntity):
         device: petsafe.devices.DeviceScoopfree,
         icon=None,
         device_class=None,
+        entity_category=None,
     ):
         self._litterbox = device
 
@@ -52,6 +55,7 @@ class PetSafeLitterboxSensorEntity(PetSafeSensorEntity):
             device_type,
             icon,
             device_class,
+            entity_category,
         )
 
         self._attr_device_info = DeviceInfo(
@@ -71,6 +75,10 @@ class PetSafeLitterboxSensorEntity(PetSafeSensorEntity):
             self._attr_native_value = litterbox.data["shadow"]["state"]["reported"][
                 "rakeCount"
             ]
+        elif self._device_type == "signal_strength":
+            self._attr_native_value = litterbox.data["shadow"]["state"]["reported"][
+                "rssi"
+            ]
         self.async_write_ha_state()
         return super()._handle_coordinator_update()
 
@@ -85,6 +93,7 @@ class PetSafeFeederSensorEntity(PetSafeSensorEntity):
         device: petsafe.devices.DeviceSmartFeed,
         icon=None,
         device_class=None,
+        entity_category=None,
     ):
         self._feeder = device
 
@@ -96,6 +105,7 @@ class PetSafeFeederSensorEntity(PetSafeSensorEntity):
             device_type,
             icon,
             device_class,
+            entity_category,
         )
 
         self._attr_device_info = DeviceInfo(
@@ -120,8 +130,9 @@ class PetSafeFeederSensorEntity(PetSafeSensorEntity):
                 status = "low"
             else:
                 status = "empty"
-
             self._attr_native_value = status
+        elif self._device_type == "signal_strength":
+            self._attr_native_value = feeder.data["network_rssi"]
 
         self.schedule_update_ha_state(True)
         return super()._handle_coordinator_update()
