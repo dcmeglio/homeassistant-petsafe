@@ -1,0 +1,82 @@
+add_schedule:
+  name: Add feeding schedule
+  description: Add a feeding schedule
+  target:
+    device:
+      integration: petsafe
+      model: SmartFeed_2.0
+    entity:
+      integration: petsafe
+  fields:
+    time:
+      name: Time
+      description: The time when the feeding should occur
+      required: true
+      selector:
+        time:
+    amount:
+      name: Amount
+      description: The feeding amount in 1/8 cup
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 32
+
+delete_schedule:
+  name: Delete schedule
+  description: Delete a feeding schedule
+  target:
+    device:
+      integration: petsafe
+      model: SmartFeed_2.0
+    entity:
+      integration: petsafe
+  fields:
+    schedule_id:
+      name: Schedule Id
+      description: The schedule Id to delete
+      required: true
+      selector:
+        text:
+
+delete_all_schedules:
+  name: Delete all schedules
+  description: Delete all feeding schedules
+  target:
+    device:
+      integration: petsafe
+      model: SmartFeed_2.0
+    entity:
+      integration: petsafe
+
+modify_schedule:
+  name: Modify schedule
+  description: Modify an existing feeding schedule
+  target:
+    device:
+      integration: petsafe
+      model: SmartFeed_2.0
+    entity:
+      integration: petsafe
+  fields:
+    schedule_id:
+      name: Schedule Id
+      description: The schedule Id to modify
+      required: true
+      selector:
+        text:
+    time:
+      name: Time
+      description: The time in 24h format when the feeding should occur
+      required: true
+      selector:
+        time:
+    amount:
+      name: Amount
+      description: The feeding amount in 1/8 cup
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 32
