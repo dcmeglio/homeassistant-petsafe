@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import async_timeout
 import boto3
-from config.custom_components.petsafe.helpers import get_feeders_for_service
+from .helpers import get_feeders_for_service
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_AREA_ID, ATTR_DEVICE_ID, ATTR_ENTITY_ID, Platform
@@ -62,9 +62,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         device_ids = call.data.get(ATTR_DEVICE_ID)
         area_ids = call.data.get(ATTR_AREA_ID)
         entity_ids = call.data.get(ATTR_ENTITY_ID)
+        time = call.data.get(ATTR_TIME)
+        amount = call.data.get(ATTR_AMOUNT)
         matched_devices = get_feeders_for_service(
             hass, area_ids, device_ids, entity_ids
         )
+        for device_id in matched_devices:
+            # Kind of a hack but it will work for now
+            data = {}
+            data["thing_name"] = device_id
+            device = petsafe.devices.DeviceSmartFeed(client, data)
+            device.schedule_feed(time, amount, False)
 
     hass.services.async_register(DOMAIN, SERVICE_ADD_SCHEDULE, handle_add_schedule)
 

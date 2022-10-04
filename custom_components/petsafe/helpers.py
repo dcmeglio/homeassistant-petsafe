@@ -1,4 +1,5 @@
 from config.custom_components.petsafe.const import DOMAIN, FEEDER_MODEL
+from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry, entity_registry
 from homeassistant.helpers.device_registry import DeviceEntry, DeviceRegistry
@@ -100,8 +101,8 @@ def is_device_feeder(hass: HomeAssistant, device: DeviceEntry):
         ),
         None,
     )
-    #   if entry and entry.state != ConfigEntryState.LOADED:
-    #      return False
+    if entry and entry.state != ConfigEntryState.LOADED:
+        return False
     if entry is None or entry.entry_id not in hass.data[DOMAIN]:
         return False
 
