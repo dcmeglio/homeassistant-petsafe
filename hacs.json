@@ -1,0 +1,10 @@
+{
+    "name": "PetSafe",
+    "domains": [
+        "sensor",
+        "switch",
+        "button",
+        "select"
+    ],
+    "render_readme": true
+}
