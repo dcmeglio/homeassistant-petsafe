@@ -76,15 +76,75 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.services.async_register(DOMAIN, SERVICE_ADD_SCHEDULE, handle_add_schedule)
 
-    # hass.services.async_register(
-    #     DOMAIN, SERVICE_DELETE_SCHEDULE, handle_delete_schedule
-    # )
-    # hass.services.async_register(
-    #     DOMAIN, SERVICE_DELETE_ALL_SCHEDULES, handle_delete_all_schedules
-    # )
-    # hass.services.async_register(
-    #     DOMAIN, SERVICE_MODIFY_SCHEDULE, handle_modify_schedule
-    # )
+    def handle_delete_schedule(call: ServiceCall):
+        device_ids = call.data.get(ATTR_DEVICE_ID)
+        area_ids = call.data.get(ATTR_AREA_ID)
+        entity_ids = call.data.get(ATTR_ENTITY_ID)
+        time = call.data.get(ATTR_TIME)
+        matched_devices = get_feeders_for_service(
+            hass, area_ids, device_ids, entity_ids
+        )
+
+        for device_id in matched_devices:
+            # Kind of a hack but it will work for now
+            data = {}
+            data["thing_name"] = device_id
+            device = petsafe.devices.DeviceSmartFeed(client, data)
+            schedules = device.get_schedules()
+            for schedule in schedules:
+                if schedule["time"] + ":00" == time:
+                    device.delete_schedule(str(schedule["id"]), False)
+                    break
+
+    hass.services.async_register(
+        DOMAIN, SERVICE_DELETE_SCHEDULE, handle_delete_schedule
+    )
+
+    def handle_delete_all_schedules(call: ServiceCall):
+        device_ids = call.data.get(ATTR_DEVICE_ID)
+        area_ids = call.data.get(ATTR_AREA_ID)
+        entity_ids = call.data.get(ATTR_ENTITY_ID)
+        matched_devices = get_feeders_for_service(
+            hass, area_ids, device_ids, entity_ids
+        )
+
+        for device_id in matched_devices:
+            # Kind of a hack but it will work for now
+            data = {}
+            data["thing_name"] = device_id
+            device = petsafe.devices.DeviceSmartFeed(client, data)
+            device.delete_all_schedules(False)
+
+    hass.services.async_register(
+        DOMAIN, SERVICE_DELETE_ALL_SCHEDULES, handle_delete_all_schedules
+    )
+
+    def handle_modify_schedule(call: ServiceCall):
+        device_ids = call.data.get(ATTR_DEVICE_ID)
+        area_ids = call.data.get(ATTR_AREA_ID)
+        entity_ids = call.data.get(ATTR_ENTITY_ID)
+        time = call.data.get(ATTR_TIME)
+        amount = call.data.get(ATTR_AMOUNT)
+        matched_devices = get_feeders_for_service(
+            hass, area_ids, device_ids, entity_ids
+        )
+
+        for device_id in matched_devices:
+            # Kind of a hack but it will work for now
+            data = {}
+            data["thing_name"] = device_id
+            device = petsafe.devices.DeviceSmartFeed(client, data)
+            schedules = device.get_schedules()
+            for schedule in schedules:
+                if schedule["time"] + ":00" == time:
+                    device.modify_schedule(
+                        schedule["time"], amount, str(schedule["id"], False)
+                    )
+                    break
+
+    hass.services.async_register(
+        DOMAIN, SERVICE_MODIFY_SCHEDULE, handle_modify_schedule
+    )
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     await coordinator.async_config_entry_first_refresh()
@@ -98,18 +158,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN].pop(entry.entry_id)
 
     return unload_ok
-
-
-def handle_delete_schedule(call):
-    pass
-
-
-def handle_delete_all_schedules(call):
-    pass
-
-
-def handle_modify_schedule(call):
-    pass
 
 
 class PetSafeData:

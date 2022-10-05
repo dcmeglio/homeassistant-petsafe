@@ -33,12 +33,12 @@ delete_schedule:
     entity:
       integration: petsafe
   fields:
-    schedule_id:
-      name: Schedule Id
-      description: The schedule Id to delete
+    time:
+      name: Time
+      description: The time when the feeding to delete
       required: true
       selector:
-        text:
+        time:
 
 delete_all_schedules:
   name: Delete all schedules
@@ -60,15 +60,9 @@ modify_schedule:
     entity:
       integration: petsafe
   fields:
-    schedule_id:
-      name: Schedule Id
-      description: The schedule Id to modify
-      required: true
-      selector:
-        text:
     time:
       name: Time
-      description: The time in 24h format when the feeding should occur
+      description: The time of the feeding to modify
       required: true
       selector:
         time:
