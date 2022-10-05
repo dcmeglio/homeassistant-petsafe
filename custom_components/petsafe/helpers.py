@@ -1,4 +1,4 @@
-from config.custom_components.petsafe.const import DOMAIN, FEEDER_MODEL
+from .const import DOMAIN, FEEDER_MODEL
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry, entity_registry
