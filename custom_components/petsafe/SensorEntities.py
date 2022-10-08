@@ -26,7 +26,6 @@ class PetSafeSensorEntity(CoordinatorEntity, SensorEntity):
         self._attr_has_entity_name = True
         self._coordinator = coordinator
         self._api_name = api_name
-        self._attr_should_poll = True
         self._attr_unique_id = api_name + "_" + device_type
         self._attr_icon = icon
         self._device_type = device_type
@@ -66,6 +65,11 @@ class PetSafeLitterboxSensorEntity(PetSafeSensorEntity):
             sw_version=device.data["shadow"]["state"]["reported"]["firmware"],
         )
 
+        if self._device_type == "last_cleaning":
+            self._attr_should_poll = True
+        else:
+            self._attr_should_poll = False
+
     def _handle_coordinator_update(self) -> None:
         data: PetSafeData = self.coordinator.data
         litterbox: petsafe.devices.DeviceScoopfree = next(
@@ -79,8 +83,28 @@ class PetSafeLitterboxSensorEntity(PetSafeSensorEntity):
             self._attr_native_value = litterbox.data["shadow"]["state"]["reported"][
                 "rssi"
             ]
-        self.async_write_ha_state()
+        if self._attr_should_poll:
+            self.schedule_update_ha_state(True)
+        else:
+            self.async_write_ha_state()
         return super()._handle_coordinator_update()
+
+    async def async_update(self) -> None:
+
+        if self._device_type == "last_cleaning":
+            data: PetSafeData = self.coordinator.data
+            litterbox: petsafe.devices.DeviceScoopfree = next(
+                x for x in data.litterboxes if x.api_name == self._api_name
+            )
+            events = await self.hass.async_add_executor_job(litterbox.get_activity)
+            for item in reversed(events["data"]):
+                if item["payload"]["code"] == "RAKE_FINISHED":
+                    self._attr_native_value = datetime.datetime.fromtimestamp(
+                        int(item["payload"]["timestamp"]) / 1000, pytz.timezone("UTC")
+                    )
+                    break
+
+        return await super().async_update()
 
 
 class PetSafeFeederSensorEntity(PetSafeSensorEntity):
@@ -116,6 +140,11 @@ class PetSafeFeederSensorEntity(PetSafeSensorEntity):
             model=device.data["product_name"],
         )
 
+        if self._device_type == "last_feeding":
+            self._attr_should_poll = True
+        else:
+            self._attr_should_poll = False
+
     def _handle_coordinator_update(self) -> None:
         data: PetSafeData = self.coordinator.data
         feeder: petsafe.devices.DeviceSmartFeed = next(
@@ -134,12 +163,15 @@ class PetSafeFeederSensorEntity(PetSafeSensorEntity):
         elif self._device_type == "signal_strength":
             self._attr_native_value = feeder.data["network_rssi"]
 
-        self.schedule_update_ha_state(True)
+        if self._attr_should_poll:
+            self.schedule_update_ha_state(True)
+        else:
+            self.async_write_ha_state()
         return super()._handle_coordinator_update()
 
     async def async_update(self) -> None:
 
-        if self._attr_device_class == "timestamp":
+        if self._device_type == "last_feeding":
             data: PetSafeData = self.coordinator.data
             feeder: petsafe.devices.DeviceSmartFeed = next(
                 x for x in data.feeders if x.api_name == self._api_name

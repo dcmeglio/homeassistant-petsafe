@@ -86,4 +86,14 @@ async def async_setup_entry(hass: HomeAssistant, config, add_entities):
                 entity_category=EntityCategory.DIAGNOSTIC,
             )
         )
+        entities.append(
+            SensorEntities.PetSafeLitterboxSensorEntity(
+                hass=hass,
+                name="Last Cleaning",
+                device_type="last_cleaning",
+                device=litterbox,
+                coordinator=coordinator,
+                device_class="timestamp",
+            )
+        )
     add_entities(entities)
