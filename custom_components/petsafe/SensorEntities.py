@@ -176,6 +176,7 @@ class PetSafeFeederSensorEntity(PetSafeSensorEntity):
             feeder: petsafe.devices.DeviceSmartFeed = next(
                 x for x in data.feeders if x.api_name == self._api_name
             )
+            test = await self.hass.async_add_executor_job(feeder.get_messages_since)
             feeding = await self.hass.async_add_executor_job(feeder.get_last_feeding)
             self._attr_native_value = datetime.datetime.fromtimestamp(
                 feeding["payload"]["time"], pytz.timezone("UTC")
