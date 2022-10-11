@@ -5,7 +5,7 @@
   "config_flow": true,
   "documentation": "https://github.com/dcmeglio/homeassistant-petsafe/blob/master/README",
   "requirements": ["petsafe==1.3"],
-  "issue_tracker": "https://github.com/dcmeglio/homeassistant-petsafe/issues"
+  "issue_tracker": "https://github.com/dcmeglio/homeassistant-petsafe/issues",
   "ssdp": [],
   "zeroconf": [],
   "homekit": {},
