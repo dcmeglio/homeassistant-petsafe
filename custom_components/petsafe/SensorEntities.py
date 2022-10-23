@@ -1,9 +1,18 @@
+import time
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.helpers.entity import DeviceInfo
 import petsafe
 import datetime
-from .const import DOMAIN, MANUFACTURER
+from .const import (
+    CAT_IN_BOX,
+    DOMAIN,
+    ERROR_SENSOR_BLOCKED,
+    MANUFACTURER,
+    RAKE_BUTTON_DETECTED,
+    RAKE_FINISHED,
+    RAKE_NOW,
+)
 from . import PetSafeData
 import pytz
 
@@ -65,7 +74,7 @@ class PetSafeLitterboxSensorEntity(PetSafeSensorEntity):
             sw_version=device.data["shadow"]["state"]["reported"]["firmware"],
         )
 
-        if self._device_type == "last_cleaning":
+        if self._device_type == "last_cleaning" or self._device_type == "rake_status":
             self._attr_should_poll = True
         else:
             self._attr_should_poll = False
@@ -97,12 +106,43 @@ class PetSafeLitterboxSensorEntity(PetSafeSensorEntity):
                 x for x in data.litterboxes if x.api_name == self._api_name
             )
             events = await self.hass.async_add_executor_job(litterbox.get_activity)
-            for item in reversed(events["data"]):
-                if item["payload"]["code"] == "RAKE_FINISHED":
+            reversed_events = reversed(events["data"])
+            for item in reversed_events:
+                if item["payload"]["code"] == RAKE_FINISHED:
                     self._attr_native_value = datetime.datetime.fromtimestamp(
                         int(item["payload"]["timestamp"]) / 1000, pytz.timezone("UTC")
                     )
                     break
+        elif self._device_type == "rake_status":
+            data: PetSafeData = self.coordinator.data
+            litterbox: petsafe.devices.DeviceScoopfree = next(
+                x for x in data.litterboxes if x.api_name == self._api_name
+            )
+            events = await self.hass.async_add_executor_job(litterbox.get_activity)
+            reversed_events = reversed(events["data"])
+            status = None
+            for item in reversed_events:
+                code = item["payload"]["code"]
+                if code == RAKE_FINISHED:
+                    status = "idle"
+                    break
+                elif code == CAT_IN_BOX:
+                    status = "timing"
+                    timestamp = int(item["payload"]["timestamp"]) / 1000
+                    rake_timer_in_seconds = (
+                        litterbox.data["shadow"]["state"]["reported"]["rakeDelayTime"]
+                        * 60
+                    )
+                    if timestamp + rake_timer_in_seconds >= time.time():
+                        status = "raking"
+                    break
+                elif code == RAKE_BUTTON_DETECTED or code == RAKE_NOW:
+                    status = "raking"
+                    break
+                elif code == ERROR_SENSOR_BLOCKED:
+                    status = "jammed"
+                    break
+            self._attr_native_value = status
 
         return await super().async_update()
 

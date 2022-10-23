@@ -78,6 +78,16 @@ async def async_setup_entry(hass: HomeAssistant, config, add_entities):
         entities.append(
             SensorEntities.PetSafeLitterboxSensorEntity(
                 hass=hass,
+                name="Rake Status",
+                device_type="rake_status",
+                device=litterbox,
+                coordinator=coordinator,
+                icon="mdi:rake",
+            )
+        )
+        entities.append(
+            SensorEntities.PetSafeLitterboxSensorEntity(
+                hass=hass,
                 name="Signal Strength",
                 device_type="signal_strength",
                 device=litterbox,
