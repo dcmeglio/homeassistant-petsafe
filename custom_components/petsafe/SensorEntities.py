@@ -133,7 +133,7 @@ class PetSafeLitterboxSensorEntity(PetSafeSensorEntity):
                         litterbox.data["shadow"]["state"]["reported"]["rakeDelayTime"]
                         * 60
                     )
-                    if timestamp + rake_timer_in_seconds >= time.time():
+                    if timestamp + rake_timer_in_seconds <= time.time():
                         status = "raking"
                     break
                 elif code == RAKE_BUTTON_DETECTED or code == RAKE_NOW:
