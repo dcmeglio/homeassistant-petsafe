@@ -1,4 +1,5 @@
 import time
+from homeassistant.const import PERCENTAGE, SIGNAL_STRENGTH_DECIBELS
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.helpers.entity import DeviceInfo
@@ -39,6 +40,11 @@ class PetSafeSensorEntity(CoordinatorEntity, SensorEntity):
         self._attr_icon = icon
         self._device_type = device_type
         self._attr_entity_category = entity_category
+
+        if device_class == "signal_strength":
+            self._attr_native_unit_of_measurement = SIGNAL_STRENGTH_DECIBELS
+        elif device_class == "battery":
+            self._attr_native_unit_of_measurement = PERCENTAGE
 
 
 class PetSafeLitterboxSensorEntity(PetSafeSensorEntity):
