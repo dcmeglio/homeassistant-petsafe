@@ -1,11 +1,11 @@
 {
-  "version": "1.2.0",
+  "version": "1.2.1",
   "domain": "petsafe",
   "name": "PetSafe",
   "config_flow": true,
   "documentation": "https://github.com/dcmeglio/homeassistant-petsafe/blob/master/README",
   "requirements": [
-    "petsafe==2.0"
+    "petsafe==2.0.1"
   ],
   "issue_tracker": "https://github.com/dcmeglio/homeassistant-petsafe/issues",
   "ssdp": [],
