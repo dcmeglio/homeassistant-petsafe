@@ -3,8 +3,6 @@ from datetime import timedelta
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 
-import petsafe
-
 from . import PetSafeCoordinator, SensorEntities
 from .const import DOMAIN
 

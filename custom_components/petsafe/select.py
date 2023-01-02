@@ -1,8 +1,6 @@
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 
-import petsafe
-
 from . import PetSafeCoordinator, SelectEntities
 from .const import DOMAIN
 

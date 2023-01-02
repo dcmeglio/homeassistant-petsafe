@@ -1,7 +1,5 @@
 from homeassistant.core import HomeAssistant
 
-import petsafe
-
 from . import ButtonEntities, PetSafeCoordinator
 from .const import DOMAIN
 

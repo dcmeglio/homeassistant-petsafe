@@ -5,22 +5,33 @@ import asyncio
 import logging
 from datetime import timedelta
 
-import async_timeout
-import boto3
 import httpx
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (ATTR_AREA_ID, ATTR_DEVICE_ID, ATTR_ENTITY_ID,
-                                 CONF_ACCESS_TOKEN, CONF_EMAIL, CONF_TOKEN,
-                                 Platform)
+from homeassistant.const import (
+    ATTR_AREA_ID,
+    ATTR_DEVICE_ID,
+    ATTR_ENTITY_ID,
+    CONF_ACCESS_TOKEN,
+    CONF_EMAIL,
+    CONF_TOKEN,
+    Platform,
+)
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 import petsafe
 
-from .const import (ATTR_AMOUNT, ATTR_TIME, CONF_REFRESH_TOKEN, DOMAIN,
-                    SERVICE_ADD_SCHEDULE, SERVICE_DELETE_ALL_SCHEDULES,
-                    SERVICE_DELETE_SCHEDULE, SERVICE_MODIFY_SCHEDULE)
+from .const import (
+    ATTR_AMOUNT,
+    ATTR_TIME,
+    CONF_REFRESH_TOKEN,
+    DOMAIN,
+    SERVICE_ADD_SCHEDULE,
+    SERVICE_DELETE_ALL_SCHEDULES,
+    SERVICE_DELETE_SCHEDULE,
+    SERVICE_MODIFY_SCHEDULE,
+)
 from .helpers import get_feeders_for_service
 
 _LOGGER = logging.getLogger(__name__)
