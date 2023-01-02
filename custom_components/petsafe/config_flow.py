@@ -113,12 +113,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self.data[CONF_REFRESH_TOKEN] = self._refresh_token
             return self.async_create_entry(title=self.data[CONF_EMAIL], data=self.data)
 
-    async def get_email_code(self, email):
+    async def get_email_code(self, email: str):
         self._client = petsafe.PetSafeClient(email=email)
         await self._client.request_code()
         return True
 
-    async def get_devices(self, email, code):
+    async def get_devices(self, email: str, code: str):
         await self._client.request_tokens_from_code(code)
         self._id_token = self._client.id_token
         self._access_token = self._client.access_token

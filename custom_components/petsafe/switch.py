@@ -1,3 +1,4 @@
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 
@@ -5,7 +6,7 @@ from . import PetSafeCoordinator, SwitchEntities
 from .const import DOMAIN
 
 
-async def async_setup_entry(hass: HomeAssistant, config, add_entities):
+async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry, add_entities):
     coordinator: PetSafeCoordinator = hass.data[DOMAIN][config.entry_id]
     feeders = await coordinator.get_feeders()
 

@@ -55,11 +55,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.data.setdefault(DOMAIN, {})
 
-    coordinator = PetSafeCoordinator(hass, client)
+    coordinator = PetSafeCoordinator(hass, client, entry)
 
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
-    async def handle_add_schedule(call: ServiceCall):
+    async def handle_add_schedule(call: ServiceCall) -> None:
         device_ids = call.data.get(ATTR_DEVICE_ID)
         area_ids = call.data.get(ATTR_AREA_ID)
         entity_ids = call.data.get(ATTR_ENTITY_ID)
@@ -77,7 +77,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.services.async_register(DOMAIN, SERVICE_ADD_SCHEDULE, handle_add_schedule)
 
-    async def handle_delete_schedule(call: ServiceCall):
+    async def handle_delete_schedule(call: ServiceCall) -> None:
         device_ids = call.data.get(ATTR_DEVICE_ID)
         area_ids = call.data.get(ATTR_AREA_ID)
         entity_ids = call.data.get(ATTR_ENTITY_ID)
@@ -101,7 +101,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         DOMAIN, SERVICE_DELETE_SCHEDULE, handle_delete_schedule
     )
 
-    async def handle_delete_all_schedules(call: ServiceCall):
+    async def handle_delete_all_schedules(call: ServiceCall) -> None:
         device_ids = call.data.get(ATTR_DEVICE_ID)
         area_ids = call.data.get(ATTR_AREA_ID)
         entity_ids = call.data.get(ATTR_ENTITY_ID)
@@ -120,7 +120,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         DOMAIN, SERVICE_DELETE_ALL_SCHEDULES, handle_delete_all_schedules
     )
 
-    async def handle_modify_schedule(call: ServiceCall):
+    async def handle_modify_schedule(call: ServiceCall) -> None:
         device_ids = call.data.get(ATTR_DEVICE_ID)
         area_ids = call.data.get(ATTR_AREA_ID)
         entity_ids = call.data.get(ATTR_ENTITY_ID)
@@ -168,9 +168,11 @@ class PetSafeData:
 
 
 class PetSafeCoordinator(DataUpdateCoordinator):
-    """My custom coordinator."""
+    """Data Update Coordinator for petsafe devices."""
 
-    def __init__(self, hass, api):
+    def __init__(
+        self, hass: HomeAssistant, api: petsafe.PetSafeClient, entry: ConfigEntry
+    ):
         """Initialize my coordinator."""
         super().__init__(
             hass,
@@ -180,13 +182,15 @@ class PetSafeCoordinator(DataUpdateCoordinator):
             # Polling interval. Will only be polled if there are subscribers.
             update_interval=timedelta(seconds=30),
         )
-        self.api = api
+        self.api: petsafe.PetSafeClient = api
         self.hass: HomeAssistant = hass
-        self._feeders = None
-        self._litterboxes = None
+        self._feeders: list[petsafe.devices.DeviceSmartFeed] = None
+        self._litterboxes: list[petsafe.devices.DeviceScoopfree] = None
         self._device_lock = asyncio.Lock()
+        self.entry = entry
 
-    async def get_feeders(self):
+    async def get_feeders(self) -> list[petsafe.devices.DeviceSmartFeed]:
+        """Return the list of feeders."""
         async with self._device_lock:
             try:
                 if self._feeders is None:
@@ -198,7 +202,8 @@ class PetSafeCoordinator(DataUpdateCoordinator):
                     raise
             return self._feeders
 
-    async def get_litterboxes(self):
+    async def get_litterboxes(self) -> list[petsafe.devices.DeviceScoopfree]:
+        """Return the list of litterboxes."""
         async with self._device_lock:
             try:
                 if self._litterboxes is None:
@@ -210,7 +215,7 @@ class PetSafeCoordinator(DataUpdateCoordinator):
                     raise
             return self._litterboxes
 
-    async def _async_update_data(self):
+    async def _async_update_data(self) -> PetSafeData:
         """Fetch data from API endpoint."""
         try:
             async with self._device_lock:
