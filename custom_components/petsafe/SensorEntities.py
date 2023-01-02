@@ -4,12 +4,13 @@ import time
 import pytz
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.const import PERCENTAGE, SIGNAL_STRENGTH_DECIBELS
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 import petsafe
 
-from . import PetSafeData
+from . import PetSafeCoordinator, PetSafeData
 from .const import (
     CAT_IN_BOX,
     DOMAIN,
@@ -24,14 +25,14 @@ from .const import (
 class PetSafeSensorEntity(CoordinatorEntity, SensorEntity):
     def __init__(
         self,
-        hass,
-        api_name,
-        name,
-        coordinator,
-        device_type,
-        icon=None,
-        device_class=None,
-        entity_category=None,
+        hass: HomeAssistant,
+        api_name: str,
+        name: str,
+        coordinator: PetSafeCoordinator,
+        device_type: str,
+        icon: str = None,
+        device_class: str = None,
+        entity_category: str = None,
     ):
         super().__init__(coordinator)
         self._attr_name = name
@@ -53,14 +54,14 @@ class PetSafeSensorEntity(CoordinatorEntity, SensorEntity):
 class PetSafeLitterboxSensorEntity(PetSafeSensorEntity):
     def __init__(
         self,
-        hass,
-        name,
-        coordinator,
-        device_type,
+        hass: HomeAssistant,
+        name: str,
+        coordinator: PetSafeCoordinator,
+        device_type: str,
         device: petsafe.devices.DeviceScoopfree,
-        icon=None,
-        device_class=None,
-        entity_category=None,
+        icon: str = None,
+        device_class: str = None,
+        entity_category: str = None,
     ):
         self._litterbox = device
 
@@ -159,14 +160,14 @@ class PetSafeLitterboxSensorEntity(PetSafeSensorEntity):
 class PetSafeFeederSensorEntity(PetSafeSensorEntity):
     def __init__(
         self,
-        hass,
-        name,
-        coordinator,
-        device_type,
+        hass: HomeAssistant,
+        name: str,
+        coordinator: PetSafeCoordinator,
+        device_type: str,
         device: petsafe.devices.DeviceSmartFeed,
-        icon=None,
-        device_class=None,
-        entity_category=None,
+        icon: str = None,
+        device_class: str = None,
+        entity_category: str = None,
     ):
         self._feeder = device
 

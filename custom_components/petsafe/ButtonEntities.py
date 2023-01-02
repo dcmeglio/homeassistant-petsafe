@@ -1,4 +1,5 @@
 from homeassistant.components.button import ButtonEntity
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -11,13 +12,13 @@ from .const import DOMAIN, MANUFACTURER
 class PetSafeButtonEntity(CoordinatorEntity, ButtonEntity):
     def __init__(
         self,
-        hass,
-        api_name,
-        name,
+        hass: HomeAssistant,
+        api_name: str,
+        name: str,
         coordinator: PetSafeCoordinator,
-        device_type,
-        icon=None,
-        device_class=None,
+        device_type: str,
+        icon: str = None,
+        device_class: str = None,
     ):
         super().__init__(coordinator)
         self._attr_name = name
@@ -34,13 +35,13 @@ class PetSafeButtonEntity(CoordinatorEntity, ButtonEntity):
 class PetSafeLitterboxButtonEntity(PetSafeButtonEntity):
     def __init__(
         self,
-        hass,
-        name,
+        hass: HomeAssistant,
+        name: str,
         coordinator: PetSafeCoordinator,
-        device_type,
+        device_type: str,
         device: petsafe.devices.DeviceScoopfree,
-        icon=None,
-        device_class=None,
+        icon: str = None,
+        device_class: str = None,
     ):
         self._litterbox = device
 

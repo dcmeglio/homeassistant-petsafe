@@ -1,27 +1,28 @@
 from typing import Any
 
 from homeassistant.components.select import SelectEntity
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 import petsafe
 
-from . import PetSafeData
+from . import PetSafeCoordinator, PetSafeData
 from .const import DOMAIN, MANUFACTURER
 
 
 class PetSafeSelectEntity(CoordinatorEntity, SelectEntity):
     def __init__(
         self,
-        hass,
-        api_name,
-        name,
-        coordinator,
-        device_type,
-        options,
-        icon=None,
-        device_class=None,
-        entity_category=None,
+        hass: HomeAssistant,
+        api_name: str,
+        name: str,
+        coordinator: PetSafeCoordinator,
+        device_type: str,
+        options: list[str],
+        icon: str = None,
+        device_class: str = None,
+        entity_category: str = None,
     ):
         super().__init__(coordinator)
         self._attr_name = name
@@ -40,15 +41,15 @@ class PetSafeSelectEntity(CoordinatorEntity, SelectEntity):
 class PetSafeLitterboxSelectEntity(PetSafeSelectEntity):
     def __init__(
         self,
-        hass,
-        name,
-        coordinator,
-        device_type,
+        hass: HomeAssistant,
+        name: str,
+        coordinator: PetSafeCoordinator,
+        device_type: str,
         device: petsafe.devices.DeviceScoopfree,
-        options,
-        icon=None,
-        device_class=None,
-        entity_category=None,
+        options: list[str],
+        icon: str = None,
+        device_class: str = None,
+        entity_category: str = None,
     ):
         self._litterbox = device
 
