@@ -7,8 +7,13 @@ import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from botocore.exceptions import ParamValidationError
 from homeassistant import config_entries
-from homeassistant.const import (CONF_ACCESS_TOKEN, CONF_BASE, CONF_CODE,
-                                 CONF_EMAIL, CONF_TOKEN)
+from homeassistant.const import (
+    CONF_ACCESS_TOKEN,
+    CONF_BASE,
+    CONF_CODE,
+    CONF_EMAIL,
+    CONF_TOKEN,
+)
 from homeassistant.data_entry_flow import FlowResult
 
 import petsafe

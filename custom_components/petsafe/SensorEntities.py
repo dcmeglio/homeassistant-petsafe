@@ -10,8 +10,15 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 import petsafe
 
 from . import PetSafeData
-from .const import (CAT_IN_BOX, DOMAIN, ERROR_SENSOR_BLOCKED, MANUFACTURER,
-                    RAKE_BUTTON_DETECTED, RAKE_FINISHED, RAKE_NOW)
+from .const import (
+    CAT_IN_BOX,
+    DOMAIN,
+    ERROR_SENSOR_BLOCKED,
+    MANUFACTURER,
+    RAKE_BUTTON_DETECTED,
+    RAKE_FINISHED,
+    RAKE_NOW,
+)
 
 
 class PetSafeSensorEntity(CoordinatorEntity, SensorEntity):
