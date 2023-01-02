@@ -8,9 +8,7 @@ from . import SwitchEntities
 
 async def async_setup_entry(hass: HomeAssistant, config, add_entities):
     coordinator: PetSafeCoordinator = hass.data[DOMAIN][config.entry_id]
-    api: petsafe.PetSafeClient = coordinator.api
-
-    feeders = await hass.async_add_executor_job(petsafe.devices.get_feeders, api)
+    feeders = await coordinator.get_feeders()
 
     entities = []
     for feeder in feeders:
@@ -31,6 +29,17 @@ async def async_setup_entry(hass: HomeAssistant, config, add_entities):
                 name="Child Lock",
                 device_type="child_lock",
                 icon="mdi:lock-open",
+                device=feeder,
+                coordinator=coordinator,
+                entity_category=EntityCategory.CONFIG,
+            )
+        )
+        entities.append(
+            SwitchEntities.PetSafeFeederSwitchEntity(
+                hass=hass,
+                name="Slow Feed",
+                device_type="slow_feed",
+                icon="mdi:tortoise",
                 device=feeder,
                 coordinator=coordinator,
                 entity_category=EntityCategory.CONFIG,

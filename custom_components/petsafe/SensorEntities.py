@@ -76,8 +76,8 @@ class PetSafeLitterboxSensorEntity(PetSafeSensorEntity):
             identifiers={(DOMAIN, device.api_name)},
             manufacturer=MANUFACTURER,
             name=device.friendly_name,
-            model=device.data["productName"],
-            sw_version=device.data["shadow"]["state"]["reported"]["firmware"],
+            model=device.product_name,
+            sw_version=device.firmware,
         )
 
         if self._device_type == "last_cleaning" or self._device_type == "rake_status":
@@ -111,7 +111,7 @@ class PetSafeLitterboxSensorEntity(PetSafeSensorEntity):
             litterbox: petsafe.devices.DeviceScoopfree = next(
                 x for x in data.litterboxes if x.api_name == self._api_name
             )
-            events = await self.hass.async_add_executor_job(litterbox.get_activity)
+            events = await litterbox.get_activity()
             reversed_events = reversed(events["data"])
             for item in reversed_events:
                 if item["payload"]["code"] == RAKE_FINISHED:
@@ -124,7 +124,7 @@ class PetSafeLitterboxSensorEntity(PetSafeSensorEntity):
             litterbox: petsafe.devices.DeviceScoopfree = next(
                 x for x in data.litterboxes if x.api_name == self._api_name
             )
-            events = await self.hass.async_add_executor_job(litterbox.get_activity)
+            events = await litterbox.get_activity()
             reversed_events = reversed(events["data"])
             status = None
             for item in reversed_events:
@@ -182,8 +182,8 @@ class PetSafeFeederSensorEntity(PetSafeSensorEntity):
             identifiers={(DOMAIN, device.api_name)},
             manufacturer=MANUFACTURER,
             name=device.friendly_name,
-            sw_version=device.data["firmware_version"],
-            model=device.data["product_name"],
+            sw_version=device.firmware,
+            model=device.product_name,
         )
 
         if self._device_type == "last_feeding":
@@ -222,8 +222,8 @@ class PetSafeFeederSensorEntity(PetSafeSensorEntity):
             feeder: petsafe.devices.DeviceSmartFeed = next(
                 x for x in data.feeders if x.api_name == self._api_name
             )
-            test = await self.hass.async_add_executor_job(feeder.get_messages_since)
-            feeding = await self.hass.async_add_executor_job(feeder.get_last_feeding)
+            test = await feeder.get_messages_since()
+            feeding = await feeder.get_last_feeding()
             self._attr_native_value = datetime.datetime.fromtimestamp(
                 feeding["payload"]["time"], pytz.timezone("UTC")
             )

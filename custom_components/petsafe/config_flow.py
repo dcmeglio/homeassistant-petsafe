@@ -1,11 +1,9 @@
 """Config flow for PetSafe Integration."""
 from __future__ import annotations
 
-import logging
 from typing import Any
 
 import voluptuous as vol
-import boto3
 from botocore.exceptions import ParamValidationError
 
 
@@ -60,16 +58,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 step_id="user", data_schema=STEP_USER_DATA_SCHEMA
             )
         else:
-            cognito_idp = await self.hass.async_add_executor_job(
-                boto3.client, "cognito-idp", "us-east-1"
-            )
             try:
-                await self.hass.async_add_executor_job(
-                    self.get_email_code, user_input[CONF_EMAIL]
-                )
+                await self.get_email_code(user_input[CONF_EMAIL])
                 self.data = user_input
                 return await self.async_step_code()
-            except cognito_idp.exceptions.UserNotFoundException:
+            except petsafe.client.InvalidUserException:
                 errors[CONF_EMAIL] = "invalid_user"
             except Exception:
                 errors[CONF_BASE] = "cannot_connect"
@@ -89,18 +82,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             )
         else:
             try:
-                cognito_idp = await self.hass.async_add_executor_job(
-                    boto3.client, "cognito-idp", "us-east-1"
-                )
-                await self.hass.async_add_executor_job(
-                    self.get_devices, self.data[CONF_EMAIL], user_input[CONF_CODE]
-                )
+                await self.get_devices(self.data[CONF_EMAIL], user_input[CONF_CODE])
                 return await self.async_step_devices()
             except ParamValidationError:
                 errors[CONF_CODE] = "invalid_code"
             except petsafe.client.InvalidCodeException:
-                errors[CONF_CODE] = "invalid_code"
-            except cognito_idp.exceptions.NotAuthorizedException:
                 errors[CONF_CODE] = "invalid_code"
             except Exception:
                 errors[CONF_BASE] = "unknown_error"
@@ -130,23 +116,21 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self.data[CONF_REFRESH_TOKEN] = self._refresh_token
             return self.async_create_entry(title=self.data[CONF_EMAIL], data=self.data)
 
-    def get_email_code(self, email):
+    async def get_email_code(self, email):
         self._client = petsafe.PetSafeClient(email=email)
-        self._client.request_code()
+        await self._client.request_code()
         return True
 
-    def get_devices(self, email, code):
-        self._client.request_tokens_from_code(code)
+    async def get_devices(self, email, code):
+        await self._client.request_tokens_from_code(code)
         self._id_token = self._client.id_token
         self._access_token = self._client.access_token
         self._refresh_token = self._client.refresh_token
 
         self._feeders = {
-            x.api_name: x.friendly_name
-            for x in petsafe.devices.get_feeders(self._client)
+            x.api_name: x.friendly_name for x in await self._client.get_feeders()
         }
         self._litterboxes = {
-            x.api_name: x.friendly_name
-            for x in petsafe.devices.get_litterboxes(self._client)
+            x.api_name: x.friendly_name for x in await self._client.get_litterboxes()
         }
         return True

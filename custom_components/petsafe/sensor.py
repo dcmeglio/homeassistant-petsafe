@@ -14,12 +14,8 @@ SCAN_INTERVAL = timedelta(seconds=60)
 
 async def async_setup_entry(hass: HomeAssistant, config, add_entities):
     coordinator: PetSafeCoordinator = hass.data[DOMAIN][config.entry_id]
-    api: petsafe.PetSafeClient = coordinator.api
-
-    feeders = await hass.async_add_executor_job(petsafe.devices.get_feeders, api)
-    litterboxes = await hass.async_add_executor_job(
-        petsafe.devices.get_litterboxes, api
-    )
+    feeders = await coordinator.get_feeders()
+    litterboxes = await coordinator.get_litterboxes()
 
     entities = []
     for feeder in feeders:

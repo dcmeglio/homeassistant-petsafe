@@ -8,11 +8,7 @@ from . import SelectEntities
 
 async def async_setup_entry(hass: HomeAssistant, config, add_entities):
     coordinator: PetSafeCoordinator = hass.data[DOMAIN][config.entry_id]
-    api: petsafe.PetSafeClient = coordinator.api
-
-    litterboxes = await hass.async_add_executor_job(
-        petsafe.devices.get_litterboxes, api
-    )
+    litterboxes = await coordinator.get_litterboxes()
 
     entities = []
     for litterbox in litterboxes:

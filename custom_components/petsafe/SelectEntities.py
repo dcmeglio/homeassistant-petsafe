@@ -65,8 +65,8 @@ class PetSafeLitterboxSelectEntity(PetSafeSelectEntity):
             identifiers={(DOMAIN, device.api_name)},
             manufacturer=MANUFACTURER,
             name=device.friendly_name,
-            model=device.data["productName"],
-            sw_version=device.data["shadow"]["state"]["reported"]["firmware"],
+            model=device.product_name,
+            sw_version=device.firmware,
         )
         self._attr_current_option = None
 
@@ -84,7 +84,5 @@ class PetSafeLitterboxSelectEntity(PetSafeSelectEntity):
 
     async def async_select_option(self, option: str) -> None:
         if self._device_type == "rake_timer":
-            await self.hass.async_add_executor_job(
-                self._litterbox.modify_timer, int(option), False
-            )
+            await self._litterbox.modify_timer(int(option), False)
         await self._coordinator.async_request_refresh()
