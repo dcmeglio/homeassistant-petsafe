@@ -1,9 +1,10 @@
-from . import PetSafeCoordinator
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
+
 import petsafe
+
+from . import PetSafeCoordinator, SelectEntities
 from .const import DOMAIN
-from . import SelectEntities
 
 
 async def async_setup_entry(hass: HomeAssistant, config, add_entities):

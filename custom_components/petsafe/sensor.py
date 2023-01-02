@@ -1,13 +1,12 @@
-from homeassistant.core import HomeAssistant
-import petsafe
-from . import SensorEntities
-from .const import DOMAIN
+from datetime import timedelta
 
-from . import PetSafeCoordinator
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 
+import petsafe
 
-from datetime import timedelta
+from . import PetSafeCoordinator, SensorEntities
+from .const import DOMAIN
 
 SCAN_INTERVAL = timedelta(seconds=60)
 

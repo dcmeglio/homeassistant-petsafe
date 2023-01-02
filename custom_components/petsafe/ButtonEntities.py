@@ -1,9 +1,11 @@
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.components.button import ButtonEntity
 from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
 import petsafe
-from .const import DOMAIN, MANUFACTURER
+
 from . import PetSafeCoordinator
+from .const import DOMAIN, MANUFACTURER
 
 
 class PetSafeButtonEntity(CoordinatorEntity, ButtonEntity):

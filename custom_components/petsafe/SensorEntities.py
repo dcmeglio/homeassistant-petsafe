@@ -1,21 +1,17 @@
-import time
-from homeassistant.const import PERCENTAGE, SIGNAL_STRENGTH_DECIBELS
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from homeassistant.components.sensor import SensorEntity
-from homeassistant.helpers.entity import DeviceInfo
-import petsafe
 import datetime
-from .const import (
-    CAT_IN_BOX,
-    DOMAIN,
-    ERROR_SENSOR_BLOCKED,
-    MANUFACTURER,
-    RAKE_BUTTON_DETECTED,
-    RAKE_FINISHED,
-    RAKE_NOW,
-)
-from . import PetSafeData
+import time
+
 import pytz
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.const import PERCENTAGE, SIGNAL_STRENGTH_DECIBELS
+from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
+import petsafe
+
+from . import PetSafeData
+from .const import (CAT_IN_BOX, DOMAIN, ERROR_SENSOR_BLOCKED, MANUFACTURER,
+                    RAKE_BUTTON_DETECTED, RAKE_FINISHED, RAKE_NOW)
 
 
 class PetSafeSensorEntity(CoordinatorEntity, SensorEntity):

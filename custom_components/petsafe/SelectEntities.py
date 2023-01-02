@@ -1,10 +1,13 @@
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from typing import Any
+
 from homeassistant.components.select import SelectEntity
 from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
 import petsafe
-from .const import DOMAIN, MANUFACTURER
+
 from . import PetSafeData
-from typing import Any
+from .const import DOMAIN, MANUFACTURER
 
 
 class PetSafeSelectEntity(CoordinatorEntity, SelectEntity):

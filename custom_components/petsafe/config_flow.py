@@ -3,25 +3,17 @@ from __future__ import annotations
 
 from typing import Any
 
+import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from botocore.exceptions import ParamValidationError
-
-
 from homeassistant import config_entries
+from homeassistant.const import (CONF_ACCESS_TOKEN, CONF_BASE, CONF_CODE,
+                                 CONF_EMAIL, CONF_TOKEN)
 from homeassistant.data_entry_flow import FlowResult
-from homeassistant.const import (
-    CONF_ACCESS_TOKEN,
-    CONF_BASE,
-    CONF_CODE,
-    CONF_EMAIL,
-    CONF_TOKEN,
-)
-import homeassistant.helpers.config_validation as cv
 
 import petsafe
 
-
-from .const import DOMAIN, CONF_REFRESH_TOKEN
+from .const import CONF_REFRESH_TOKEN, DOMAIN
 
 STEP_USER_DATA_SCHEMA = vol.Schema({vol.Required(CONF_EMAIL): str})
 STEP_CODE_DATA_SCHEMA = vol.Schema({vol.Required(CONF_CODE): str})
