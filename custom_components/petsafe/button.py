@@ -1,5 +1,6 @@
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
 
 from . import ButtonEntities, PetSafeCoordinator
 from .const import DOMAIN
@@ -8,8 +9,13 @@ from .const import DOMAIN
 async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry, add_entities):
     coordinator: PetSafeCoordinator = hass.data[DOMAIN][config.entry_id]
 
-    feeders = await coordinator.get_feeders()
-    litterboxes = await coordinator.get_litterboxes()
+    feeders = None
+    litterboxes = None
+    try:
+        feeders = await coordinator.get_feeders()
+        litterboxes = await coordinator.get_litterboxes()
+    except Exception as ex:
+        raise ConfigEntryNotReady("Failed to retrieve PetSafe devices") from ex
 
     entities = []
     for feeder in feeders:

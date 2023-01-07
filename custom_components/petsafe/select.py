@@ -1,5 +1,6 @@
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.entity import EntityCategory
 
 from . import PetSafeCoordinator, SelectEntities
@@ -8,7 +9,14 @@ from .const import DOMAIN
 
 async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry, add_entities):
     coordinator: PetSafeCoordinator = hass.data[DOMAIN][config.entry_id]
-    litterboxes = await coordinator.get_litterboxes()
+
+    litterboxes = None
+    try:
+        litterboxes = await coordinator.get_litterboxes()
+    except Exception as ex:
+        raise ConfigEntryNotReady(
+            "Failed to retrieve PetSafe scoopfree devices"
+        ) from ex
 
     entities = []
     for litterbox in litterboxes:
