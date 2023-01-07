@@ -18,7 +18,7 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ConfigEntryAuthFailed
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 import petsafe
 
@@ -162,7 +162,11 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 class PetSafeData:
-    def __init__(self, feeders, litterboxes):
+    def __init__(
+        self,
+        feeders: list[petsafe.devices.DeviceSmartFeed],
+        litterboxes: list[petsafe.devices.DeviceScoopfree],
+    ):
         self.feeders = feeders
         self.litterboxes = litterboxes
 
@@ -226,4 +230,6 @@ class PetSafeCoordinator(DataUpdateCoordinator):
             if ex.response.status_code in (401, 403):
                 raise ConfigEntryAuthFailed() from ex
             else:
-                raise
+                raise UpdateFailed() from ex
+        except Exception as ex:
+            raise UpdateFailed() from ex
