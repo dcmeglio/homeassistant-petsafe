@@ -9,9 +9,12 @@ SERVICE_ADD_SCHEDULE = "add_schedule"
 SERVICE_DELETE_SCHEDULE = "delete_schedule"
 SERVICE_DELETE_ALL_SCHEDULES = "delete_all_schedules"
 SERVICE_MODIFY_SCHEDULE = "modify_schedule"
+SERVICE_FEED = "feed"
+SERVICE_PRIME = "prime"
 
 ATTR_TIME = "time"
 ATTR_AMOUNT = "amount"
+ATTR_SLOW_FEED = "slow_feed"
 
 RAKE_FINISHED = "RAKE_FINISHED"
 CAT_IN_BOX = "CAT_IN_BOX"
