@@ -3,7 +3,8 @@
 DOMAIN = "petsafe"
 CONF_REFRESH_TOKEN = "refresh_token"
 MANUFACTURER = "PetSafe"
-FEEDER_MODEL = "SmartFeed_2.0"
+FEEDER_MODEL_GEN1 = "SmartFeed_1.0"
+FEEDER_MODEL_GEN2 = "SmartFeed_2.0"
 
 SERVICE_ADD_SCHEDULE = "add_schedule"
 SERVICE_DELETE_SCHEDULE = "delete_schedule"

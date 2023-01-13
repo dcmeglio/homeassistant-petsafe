@@ -15,6 +15,8 @@ from .const import (
     CAT_IN_BOX,
     DOMAIN,
     ERROR_SENSOR_BLOCKED,
+    FEEDER_MODEL_GEN1,
+    FEEDER_MODEL_GEN2,
     MANUFACTURER,
     RAKE_BUTTON_DETECTED,
     RAKE_FINISHED,
@@ -187,7 +189,8 @@ class PetSafeFeederSensorEntity(PetSafeSensorEntity):
             manufacturer=MANUFACTURER,
             name=device.friendly_name,
             sw_version=device.firmware,
-            model=device.product_name,
+            # NB: Gen1 smart feeders do not report a product_name
+            model=device.product_name or FEEDER_MODEL_GEN1,
         )
 
         if self._device_type == "last_feeding":

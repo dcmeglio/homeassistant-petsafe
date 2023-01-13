@@ -6,7 +6,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 import petsafe
 
 from . import PetSafeCoordinator
-from .const import DOMAIN, MANUFACTURER
+from .const import DOMAIN, FEEDER_MODEL_GEN1, MANUFACTURER
 
 
 class PetSafeButtonEntity(CoordinatorEntity, ButtonEntity):
@@ -100,7 +100,7 @@ class PetSafeFeederButtonEntity(PetSafeButtonEntity):
             manufacturer=MANUFACTURER,
             name=device.friendly_name,
             sw_version=device.firmware,
-            model=device.product_name,
+            model=device.product_name or FEEDER_MODEL_GEN1,
         )
 
     async def async_press(self) -> None:

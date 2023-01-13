@@ -3,7 +3,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry, entity_registry
 from homeassistant.helpers.device_registry import DeviceEntry, DeviceRegistry
 
-from .const import DOMAIN, FEEDER_MODEL
+from .const import DOMAIN, FEEDER_MODEL_GEN1, FEEDER_MODEL_GEN2
 
 
 def get_feeders_for_service(hass: HomeAssistant, area_ids, device_ids, entity_ids):
@@ -90,7 +90,7 @@ def get_feeders_by_entity_id(
 
 
 def is_device_feeder(hass: HomeAssistant, device: DeviceEntry):
-    if device.model != FEEDER_MODEL:
+    if device.model not in [FEEDER_MODEL_GEN1, FEEDER_MODEL_GEN2]:
         return False
 
     config_entry_ids = device.config_entries
