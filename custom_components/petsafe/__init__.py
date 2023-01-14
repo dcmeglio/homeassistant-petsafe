@@ -24,13 +24,16 @@ import petsafe
 
 from .const import (
     ATTR_AMOUNT,
+    ATTR_SLOW_FEED,
     ATTR_TIME,
     CONF_REFRESH_TOKEN,
     DOMAIN,
     SERVICE_ADD_SCHEDULE,
     SERVICE_DELETE_ALL_SCHEDULES,
     SERVICE_DELETE_SCHEDULE,
+    SERVICE_FEED,
     SERVICE_MODIFY_SCHEDULE,
+    SERVICE_PRIME,
 )
 from .helpers import get_feeders_for_service
 
@@ -146,6 +149,46 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.services.async_register(
         DOMAIN, SERVICE_MODIFY_SCHEDULE, handle_modify_schedule
     )
+
+    async def handle_feed(call: ServiceCall) -> None:
+        device_ids = call.data.get(ATTR_DEVICE_ID)
+        area_ids = call.data.get(ATTR_AREA_ID)
+        entity_ids = call.data.get(ATTR_ENTITY_ID)
+        amount = call.data.get(ATTR_AMOUNT)
+        slow_feed = call.data.get(ATTR_SLOW_FEED)
+        matched_devices = get_feeders_for_service(
+            hass, area_ids, device_ids, entity_ids
+        )
+
+        for device_id in matched_devices:
+            device = next(
+                d for d in await coordinator.get_feeders() if d.api_name == device_id
+            )
+            if device is not None:
+                await device.feed(amount, slow_feed, False)
+                await coordinator.async_request_refresh()
+
+    hass.services.async_register(DOMAIN, SERVICE_FEED, handle_feed)
+
+    async def handle_prime(call: ServiceCall) -> None:
+        device_ids = call.data.get(ATTR_DEVICE_ID)
+        area_ids = call.data.get(ATTR_AREA_ID)
+        entity_ids = call.data.get(ATTR_ENTITY_ID)
+        matched_devices = get_feeders_for_service(
+            hass, area_ids, device_ids, entity_ids
+        )
+
+        for device_id in matched_devices:
+            device = next(
+                d for d in await coordinator.get_feeders() if d.api_name == device_id
+            )
+            if device is not None:
+                # NB: DeviceSmartFeed.prime() synchronously updates state after priming.
+                # Directly send a 5/8 cup meal here so that we can defer the update.
+                await device.feed(5, False, False)
+                await coordinator.async_request_refresh()
+
+    hass.services.async_register(DOMAIN, SERVICE_PRIME, handle_prime)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     await coordinator.async_config_entry_first_refresh()
