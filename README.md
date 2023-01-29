@@ -6,3 +6,9 @@
 PetSafe Integration for Home Assistant
 
 Integrate your PetSafe Smartfeed feeders and Scoopfree litter boxes into Home Assistant
+
+## Contributors
+Thank you to these contributors who helped make this component even better!
+
+* @cmccambridge
+* @hanscats
