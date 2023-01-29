@@ -4,7 +4,6 @@ add_schedule:
   target:
     device:
       integration: petsafe
-      model: SmartFeed_2.0
     entity:
       integration: petsafe
   fields:
@@ -29,7 +28,6 @@ delete_schedule:
   target:
     device:
       integration: petsafe
-      model: SmartFeed_2.0
     entity:
       integration: petsafe
   fields:
@@ -46,7 +44,6 @@ delete_all_schedules:
   target:
     device:
       integration: petsafe
-      model: SmartFeed_2.0
     entity:
       integration: petsafe
 
@@ -56,7 +53,6 @@ modify_schedule:
   target:
     device:
       integration: petsafe
-      model: SmartFeed_2.0
     entity:
       integration: petsafe
   fields:
@@ -81,7 +77,6 @@ feed:
   target:
     device:
       integration: petsafe
-      model: SmartFeed_2.0
     entity:
       integration: petsafe
   fields:
@@ -106,6 +101,5 @@ prime:
   target:
     device:
       integration: petsafe
-      model: SmartFeed_2.0
     entity:
       integration: petsafe

@@ -8,7 +8,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 import petsafe
 
 from . import PetSafeCoordinator, PetSafeData
-from .const import DOMAIN, MANUFACTURER
+from .const import DOMAIN, FEEDER_MODEL_GEN1, MANUFACTURER
 
 
 class PetSafeSwitchEntity(CoordinatorEntity, SwitchEntity):
@@ -109,7 +109,8 @@ class PetSafeFeederSwitchEntity(PetSafeSwitchEntity):
             manufacturer=MANUFACTURER,
             name=device.friendly_name,
             sw_version=device.firmware,
-            model=device.product_name,
+            # NB: Gen1 smart feeders do not report a product_name
+            model=device.product_name or FEEDER_MODEL_GEN1,
         )
         self._device = device
 
