@@ -18,6 +18,7 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ConfigEntryAuthFailed
+from homeassistant.helpers.httpx_client import get_async_client
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 import petsafe
@@ -54,6 +55,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         entry.data.get(CONF_TOKEN),
         entry.data.get(CONF_REFRESH_TOKEN),
         entry.data.get(CONF_ACCESS_TOKEN),
+        client = get_async_client(hass)
     )
 
     hass.data.setdefault(DOMAIN, {})
