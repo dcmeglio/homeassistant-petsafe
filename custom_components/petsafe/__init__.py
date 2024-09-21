@@ -237,6 +237,7 @@ class PetSafeCoordinator(DataUpdateCoordinator):
         self._litterboxes: list[petsafe.devices.DeviceScoopfree] = None
         self._device_lock = asyncio.Lock()
         self.entry = entry
+        self._authErrorCount = 0
 
     async def get_feeders(self) -> list[petsafe.devices.DeviceSmartFeed]:
         """Return the list of feeders."""
@@ -270,10 +271,15 @@ class PetSafeCoordinator(DataUpdateCoordinator):
             async with self._device_lock:
                 self._feeders = await self.api.get_feeders()
                 self._litterboxes = await self.api.get_litterboxes()
+                self._authErrorCount = 0
                 return PetSafeData(self._feeders, self._litterboxes)
         except httpx.HTTPStatusError as ex:
             if ex.response.status_code in (401, 403):
-                raise ConfigEntryAuthFailed() from ex
+                self._authErrorCount += 1
+                if self._authErrorCount >= 5:
+                    self._authErrorCount = 0
+                    raise ConfigEntryAuthFailed() from ex
+                
             else:
                 raise UpdateFailed() from ex
         except Exception as ex:
