@@ -7,6 +7,7 @@ from homeassistant.const import PERCENTAGE, SIGNAL_STRENGTH_DECIBELS
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import dt as dt_util
 
 import petsafe
 
@@ -193,7 +194,7 @@ class PetSafeFeederSensorEntity(PetSafeSensorEntity):
             model=device.product_name or FEEDER_MODEL_GEN1,
         )
 
-        if self._device_type == "last_feeding":
+        if self._device_type == "last_feeding" or self._device_type == "next_feeding":
             self._attr_should_poll = True
         else:
             self._attr_should_poll = False
@@ -233,5 +234,32 @@ class PetSafeFeederSensorEntity(PetSafeSensorEntity):
             self._attr_native_value = datetime.datetime.fromtimestamp(
                 feeding["payload"]["time"], pytz.timezone("UTC")
             )
-
+        if self._device_type == "next_feeding":
+            data: PetSafeData = self.coordinator.data
+            feeder: petsafe.devices.DeviceSmartFeed = next(
+                x for x in data.feeders if x.api_name == self._api_name
+            )
+            schedules = await feeder.get_schedules()
+            self._attr_native_value = self._get_next_feeding_time(schedules)
         return await super().async_update()
+    
+    def _get_next_feeding_time(self, schedules):
+        now = dt_util.now()
+        time_fmt = "%H:%M"
+        
+        # Convert schedule times to datetime objects for today
+        today = now.date()
+        feeding_times = []
+        for schedule in schedules:
+            time_obj = datetime.datetime.strptime(schedule["time"], time_fmt).time()
+            feeding_time = dt_util.as_local(datetime.datetime.combine(today, time_obj))
+            feeding_times.append(feeding_time)
+        
+        sorted_feeding_times = sorted(feeding_times)
+        # Find the next feeding time
+        for time in sorted_feeding_times:
+            if time > now:
+                return time
+                
+        # If no times found today, return first feeding time for tomorrow
+        return dt_util.as_local(sorted_feeding_times[0] + datetime.timedelta(days=1))

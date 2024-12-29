@@ -46,6 +46,16 @@ async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry, add_entiti
         entities.append(
             SensorEntities.PetSafeFeederSensorEntity(
                 hass=hass,
+                name="Next Feeding",
+                device_type="next_feeding",
+                device_class="timestamp",
+                device=feeder,
+                coordinator=coordinator,
+            )
+        )
+        entities.append(
+            SensorEntities.PetSafeFeederSensorEntity(
+                hass=hass,
                 name="Food Level",
                 device_type="food_level",
                 device=feeder,
