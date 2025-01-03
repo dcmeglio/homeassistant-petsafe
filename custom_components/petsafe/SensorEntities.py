@@ -239,8 +239,9 @@ class PetSafeFeederSensorEntity(PetSafeSensorEntity):
             feeder: petsafe.devices.DeviceSmartFeed = next(
                 x for x in data.feeders if x.api_name == self._api_name
             )
-            schedules = await feeder.get_schedules()
-            self._attr_native_value = self._get_next_feeding_time(schedules)
+            if self._attr_native_value is None or dt_util.now() > self._attr_native_value:
+                schedules = await feeder.get_schedules()
+                self._attr_native_value = self._get_next_feeding_time(schedules)
         return await super().async_update()
     
     def _get_next_feeding_time(self, schedules):
